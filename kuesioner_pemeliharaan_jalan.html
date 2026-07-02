@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuesioner ANP — Pemeliharaan Jalan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#EEF4F7;
+    --paper:#FFFFFF;
+    --ink:#1A2530;
+    --navy:#1B3A5C;
+    --navy-2:#254E7A;
+    --navy-3:#0F2540;
+    --teal:#1A9E8F;
+    --teal-dark:#127A6E;
+    --teal-light:#E6F7F5;
+    --line:#C8DBE8;
+    --muted:#5A7080;
+    --good:#1A9E8F;
+    --danger:#C0392B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(26,158,143,.10) 0%, transparent 45%),
+      radial-gradient(circle at 85% 70%, rgba(27,58,92,.13) 0%, transparent 45%),
+      radial-gradient(circle at 50% 95%, rgba(26,158,143,.07) 0%, transparent 40%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231B3A5C' fill-opacity='0.045'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp{
+    font-family:'Oswald',system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+  }
+  #app{max-width:1140px;margin:0 auto;padding:0 0 60px;}
+
+  /* ── LAYOUT 2 KOLOM PERTANYAAN ── */
+  .q2col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 20px;
+    align-items:start;
+  }
+  .q2col-left,.q2col-right{ display:flex; flex-direction:column; }
+  .qnum-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--navy);color:#fff;
+    font-size:11px;font-weight:700;
+    margin-right:6px;flex-shrink:0;vertical-align:middle;
+  }
+  .qnum-check{ color:var(--teal);font-size:13px;font-weight:700;margin-left:4px; }
+  .qblock-done{ border-left:3px solid var(--teal);padding-left:10px; }
+  @media(max-width:700px){
+    .q2col{ grid-template-columns:1fr; }
+    #app{ max-width:100%; }
+  }
+
+  /* ===== PAGE HEADER BANNER ===== */
+  .page-header{
+    position:relative;
+    width:100%;
+    height:160px;
+    overflow:hidden;
+    margin-bottom:24px;
+    border-radius:0 0 18px 18px;
+    box-shadow:0 4px 18px rgba(27,58,92,.18);
+  }
+  .page-header > svg{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+  }
+  .page-header-content{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:0 28px;
+    z-index:2;
+  }
+  .page-header-content .badge{margin-bottom:6px;}
+  .page-header-content h1.title{
+    color:#fff;margin:0;font-size:26px;
+    text-shadow:0 2px 10px rgba(0,0,0,.5);
+  }
+  .page-header-content p.header-sub{
+    color:rgba(255,255,255,.88);font-size:13px;margin:4px 0 0;
+    text-shadow:0 1px 4px rgba(0,0,0,.4);
+  }
+
+  .page-body{padding:0 18px;}
+
+  .badge{
+    display:inline-block;
+    background:var(--navy);
+    color:#fff;
+    font-family:'Oswald',sans-serif;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    padding:5px 10px;
+    border-radius:3px;
+    margin-bottom:10px;
+  }
+  .badge.teal{background:var(--teal);color:#fff;}
+  .badge.amber{background:var(--teal);color:#fff;}
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:24px;
+    box-shadow:0 2px 12px rgba(27,58,92,.08), 0 0 0 1px rgba(27,58,92,.03);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;
+    width:4px;height:100%;
+    background:linear-gradient(180deg, var(--teal) 0%, var(--navy) 100%);
+    opacity:.55;
+    border-radius:12px 0 0 12px;
+  }
+  .card + .card{margin-top:16px;}
+
+  h1.title{font-size:26px;margin:6px 0 4px;color:var(--navy);}
+  p.lede{color:var(--muted);font-size:15px;line-height:1.55;margin:0 0 18px;}
+
+  label.field-label{
+    display:block;font-size:12px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--navy-2);margin:18px 0 6px;
+  }
+  input[type=text]{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:6px;
+    font-size:15px;font-family:inherit;background:#F5FAFC;
+  }
+  input[type=text]:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+
+  select.select-field{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:6px;
+    font-size:15px;font-family:inherit;background:#F5FAFC;color:var(--ink);appearance:none;
+  }
+  select.select-field:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+
+  .quote-title{
+    font-family:'Oswald',sans-serif;font-weight:600;font-size:14.5px;letter-spacing:.02em;
+    color:var(--navy);background:var(--teal-light);border-left:4px solid var(--teal);
+    padding:12px 14px;border-radius:4px;margin:0 0 14px;text-transform:uppercase;
+  }
+  .signoff{font-size:14px;color:var(--ink);line-height:1.6;margin:14px 0 22px;}
+  .poin-list{margin:0 0 4px;padding-left:20px;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .poin-list li{margin-bottom:6px;}
+  table.scale-guide{width:100%;border-collapse:collapse;margin:6px 0 22px;font-size:14px;}
+  table.scale-guide td{padding:7px 10px;border-bottom:1px solid var(--line);}
+  table.scale-guide td:first-child{font-weight:700;color:var(--teal-dark);width:70px;}
+
+  .radio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+  @media (max-width:520px){.radio-grid{grid-template-columns:1fr;}}
+  .radio-opt{
+    border:1px solid var(--line);border-radius:8px;padding:12px 14px;cursor:pointer;
+    display:flex;gap:10px;align-items:flex-start;background:#F5FAFC;transition:.15s;
+  }
+  .radio-opt:hover{border-color:var(--teal);}
+  .radio-opt.selected{border-color:var(--teal-dark);background:var(--teal-light);box-shadow:0 0 0 1px var(--teal-dark) inset;}
+  .radio-opt input{margin-top:3px;accent-color:var(--teal);}
+  .radio-opt .ro-title{font-weight:600;font-size:15px;color:var(--navy);}
+  .radio-opt .ro-desc{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.4;}
+
+  button{
+    font-family:'Inter',sans-serif;cursor:pointer;border:none;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
+    color:#fff;font-weight:600;font-size:15px;
+    padding:13px 22px;border-radius:8px;width:100%;margin-top:22px;transition:.15s;
+    box-shadow:0 2px 8px rgba(27,58,92,.25);
+  }
+  .btn-primary:disabled{background:#B0C4D4;cursor:not-allowed;box-shadow:none;}
+  .btn-primary:not(:disabled):hover{background:linear-gradient(135deg,var(--teal-dark) 0%,var(--teal) 100%);box-shadow:0 4px 14px rgba(26,158,143,.35);}
+
+  .btn-row{display:flex;gap:10px;margin-top:22px;}
+  .btn-secondary{
+    background:#fff;border:1.5px solid var(--line);color:var(--navy);
+    font-weight:600;font-size:14px;padding:13px 18px;border-radius:8px;
+  }
+  .btn-secondary:hover{border-color:var(--navy);background:#F0F6FB;}
+  .btn-secondary:disabled{color:#B0C4D4;cursor:not-allowed;}
+
+  .btn-link{background:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:4px;}
+  .btn-link:hover{color:var(--navy);}
+
+  /* road progress */
+  .road-wrap{margin-bottom:22px;}
+  .road-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;}
+  .road{
+    position:relative;height:10px;background:var(--navy);border-radius:5px;overflow:hidden;
+  }
+  .road::before{
+    content:"";position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-1px);
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.4) 0 8px,transparent 8px 16px);
+  }
+  .road-fill{
+    position:absolute;top:0;left:0;height:100%;
+    background:linear-gradient(90deg,var(--teal) 0%,#34D1C0 100%);
+    border-radius:5px;transition:width .25s ease;
+  }
+
+  .section-tag{font-size:12px;color:var(--teal-dark);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+  .goal-context{font-size:12.5px;color:var(--muted);background:var(--teal-light);border-radius:6px;padding:8px 10px;margin-bottom:18px;}
+
+  .pair-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:18px;}
+  .pair-label{flex:1;font-size:15.5px;font-weight:600;line-height:1.35;}
+  .pair-label.left{text-align:left;color:var(--navy);}
+  .pair-label.right{text-align:right;color:var(--navy);}
+
+  .qblock{margin-bottom:6px;}
+  .qblock-num{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;}
+  .qdivider{height:1px;background:var(--line);margin:20px 0;}
+
+  .scale-wrap{overflow-x:auto;padding:6px 0 10px;}
+  .scale-row{display:flex;gap:5px;min-width:max-content;justify-content:center;}
+  .scale-btn{
+    width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
+    background:#fff;font-weight:600;font-size:13px;color:var(--navy);
+    display:flex;align-items:center;justify-content:center;transition:.12s;flex-shrink:0;
+  }
+  .scale-btn:hover{border-color:var(--teal);color:var(--teal);}
+  .scale-btn.center{border-color:var(--navy-2);background:#EEF4F7;}
+  .scale-btn.selected{background:linear-gradient(135deg,var(--teal-dark),var(--teal));border-color:var(--teal);color:#fff;transform:scale(1.12);box-shadow:0 2px 8px rgba(26,158,143,.35);}
+  .scale-caption{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;padding:0 2px;}
+
+  .helper{font-size:12.5px;color:var(--muted);text-align:center;margin-top:2px;}
+
+  .admin-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .admin-row:last-child{border-bottom:none;}
+  .pill{background:var(--teal);color:#fff;font-size:12px;padding:3px 9px;border-radius:99px;font-weight:600;}
+
+  .footer-link{text-align:center;margin-top:26px;}
+  .toast{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+    background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;
+    font-size:13.5px;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:50;
+    border-left:3px solid var(--teal);
+  }
+  @media (max-width:480px){
+    .pair-label{font-size:14px;}
+    h1.title{font-size:22px;}
+    .page-header{height:130px;}
+    .page-header-content{padding:0 16px;}
+    .page-header-content h1.title{font-size:20px;}
+    .page-body{padding:0 12px;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================ DATA ============================ */
+const STAKEHOLDERS = {
+  pengguna: {
+    label: "Pengguna Jalan",
+    mainGoal: "Meningkatkan pengalaman perjalanan saat berkendara",
+    desc: "Menitikberatkan keinginan pengguna jalan akan kondisi jalan yang aman, nyaman, lancar, mudah diakses, dan efisien.",
+    briefing: {
+      siapa: "Pengguna jalan adalah setiap individu yang secara langsung memanfaatkan infrastruktur jalan dalam aktivitas sehari-hari, seperti pengemudi kendaraan pribadi, pengemudi kendaraan umum, pengendara sepeda motor, pedagang, pelajar, maupun masyarakat umum yang beraktivitas di jalan.",
+      poin: [
+        "Keamanan dan keselamatan selama berkendara",
+        "Kenyamanan dan kelancaran arus lalu lintas",
+        "Kemudahan akses ke berbagai wilayah dan tujuan",
+        "Efisiensi waktu perjalanan untuk aktivitas seperti bekerja, sekolah, perdagangan, dan mobilitas sosial"
+      ]
+    },
+    tujuan: [
+      { name: "Kenyamanan Saat Perjalanan", kriteria: [
+        "Permukaan jalan rata dan halus",
+        "Minim getaran dan guncangan kendaraan",
+        "Perjalanan terasa nyaman untuk kendaraan roda dua maupun roda empat",
+        "Kebisingan akibat kondisi jalan relatif rendah",
+        "Kondisi jalan tidak menyebabkan kelelahan berkendara yang tinggi"
+      ]},
+      { name: "Keselamatan Perjalanan", kriteria: [
+        "Minim risiko kecelakaan akibat kerusakan jalan",
+        "Jarak pandang pengemudi cukup baik",
+        "Permukaan jalan memiliki daya cengkeram yang baik",
+        "Marka dan rambu jalan mudah terlihat",
+        "Tersedianya elemen keselamatan pendukung"
+      ]},
+      { name: "Kelancaran Perjalanan", kriteria: [
+        "Perjalanan lebih cepat dan lancar",
+        "Waktu tempuh menjadi lebih singkat",
+        "Pengurangan kemacetan akibat kerusakan jalan",
+        "Tidak terjadi hambatan lalu lintas akibat genangan atau kerusakan",
+        "Kelancaran mobilitas harian masyarakat meningkat"
+      ]},
+      { name: "Akses yang Mudah", kriteria: [
+        "Mempermudah distribusi hasil pertanian dan perdagangan lokal",
+        "Akses mudah dan nyaman ke tempat-tempat pendidikan",
+        "Akses mudah menuju fasilitas kesehatan",
+        "Jalan mudah diakses oleh semua jenis kendaraan",
+        "Meningkatkan konektivitas antarwilayah"
+      ]},
+      { name: "Efisiensi Biaya dan Operasional Pengguna", kriteria: [
+        "Biaya perjalanan menjadi lebih rendah",
+        "Penggunaan bahan bakar lebih efisien",
+        "Biaya perawatan kendaraan berkurang",
+        "Mengurangi risiko kerugian akibat keterlambatan perjalanan",
+        "Meningkatkan efisiensi mobilitas harian masyarakat"
+      ]},
+      { name: "Kepuasan Pelayanan Jalan", kriteria: [
+        "Perbaikan jalan dilakukan dengan cepat saat terjadi kerusakan",
+        "Keluhan masyarakat terkait jalan ditindaklanjuti dengan baik",
+        "Hasil pemeliharaan dirasakan nyata oleh pengguna",
+        "Pemeliharaan jalan dilakukan secara rutin dan berkelanjutan",
+        "Masyarakat merasa kebutuhan mobilitasnya diperhatikan"
+      ]}
+    ]
+  },
+  pemerintah: {
+    label: "Pemerintah",
+    mainGoal: "Menjamin keberlanjutan fungsi jalan secara efisien dan sesuai regulasi",
+    desc: "Berfokus pada kondisi infrastruktur, ketepatan prioritas, efisiensi anggaran, dan kepatuhan regulasi dalam pemeliharaan jalan.",
+    briefing: {
+      siapa: "Pemerintah adalah pemangku kepentingan yang bertanggung jawab dalam perencanaan, pelaksanaan, dan pengawasan pemeliharaan jalan, mencakup dinas/instansi teknis bidang pekerjaan umum, perencanaan, lingkungan hidup, hingga unsur pengawasan internal.",
+      poin: [
+        "Menjaga kondisi dan kinerja infrastruktur jalan",
+        "Ketepatan dalam menentukan prioritas penanganan",
+        "Efisiensi dalam penggunaan anggaran pemeliharaan",
+        "Kesesuaian pelaksanaan dengan standar dan regulasi teknis",
+        "Efektivitas pelaksanaan program tepat waktu",
+        "Pemerataan pelayanan jalan kepada masyarakat"
+      ]
+    },
+    tujuan: [
+      { name: "Kondisi dan Kinerja Infrastruktur Jalan", kriteria: [
+        "Peningkatan kemantapan jalan",
+        "Tingkat kerusakan jalan dapat ditekan",
+        "Memperpanjang masa layan jalan",
+        "Kinerja struktur perkerasan tetap terjaga",
+        "Mencegah kerusakan berulang dalam waktu singkat"
+      ]},
+      { name: "Ketepatan Penentuan Prioritas Penanganan", kriteria: [
+        "Penentuan ruas prioritas yang tepat",
+        "Keputusan berbasis tingkat kerusakan jalan",
+        "Keputusan berbasis fungsi dan peran jalan",
+        "Prioritas mempertimbangkan volume lalu lintas",
+        "Prioritas mempertimbangkan manfaat pelayanan publik"
+      ]},
+      { name: "Efisiensi Penggunaan Anggaran", kriteria: [
+        "Penggunaan anggaran yang optimal",
+        "Biaya penanganan sesuai kebutuhan teknis",
+        "Meminimalkan biaya rehabilitasi besar di masa depan",
+        "Rasio manfaat terhadap biaya tinggi",
+        "Program sesuai dengan kemampuan fiskal daerah"
+      ]},
+      { name: "Kesesuaian Pelaksanaan dengan Standar dan Regulasi", kriteria: [
+        "Hasil pekerjaan sesuai spesifikasi teknis",
+        "Pekerjaan sesuai regulasi dan ketentuan yang berlaku",
+        "Geometrik jalan sesuai dengan standar Bina Marga",
+        "Pelaksanaan sesuai prosedur pengadaan dan pengawasan",
+        "Mutu hasil pekerjaan dapat dipertanggungjawabkan"
+      ]},
+      { name: "Efektivitas Pelaksanaan Program", kriteria: [
+        "Pekerjaan selesai sesuai jadwal",
+        "Pelaksanaan dapat dilakukan dengan sumber daya yang tersedia",
+        "Pengawasan pekerjaan berjalan efektif",
+        "Risiko hambatan pelaksanaan dapat diminimalkan",
+        "Koordinasi antarinstansi berjalan baik"
+      ]},
+      { name: "Pemerataan dan Pelayanan Publik", kriteria: [
+        "Pemerataan penanganan jalan di setiap daerah",
+        "Peningkatan akses masyarakat terhadap pelayanan dasar",
+        "Mendukung aktivitas ekonomi daerah",
+        "Mendukung ketahanan pangan di setiap daerah",
+        "Meningkatkan konektivitas antarwilayah"
+      ]}
+    ]
+  },
+  akademisi: {
+    label: "Akademisi / Ahli",
+    mainGoal: "Mendukung pemeliharaan jalan yang berbasis ilmiah dan berkelanjutan",
+    desc: "Menilai pemeliharaan jalan dari sisi kualitas data, ketepatan metode, kinerja teknis, efisiensi jangka panjang, inovasi, dan lingkungan.",
+    briefing: {
+      siapa: "Akademisi/Ahli adalah pihak yang memiliki kompetensi keilmuan dan keahlian teknis di bidang infrastruktur jalan, baik dari kalangan perguruan tinggi, peneliti, maupun praktisi ahli, yang memberikan pandangan berbasis data dan kajian ilmiah.",
+      poin: [
+        "Keputusan pemeliharaan didasarkan pada data dan analisis yang akurat",
+        "Penerapan metode penanganan yang tepat sesuai jenis kerusakan",
+        "Efektivitas kinerja struktur dan umur layan jalan",
+        "Efisiensi dan keberlanjutan jangka panjang",
+        "Pemanfaatan inovasi dan teknologi terbaru",
+        "Perhatian terhadap dampak lingkungan dan keberlanjutan"
+      ]
+    },
+    tujuan: [
+      { name: "Dasar Pengambilan Keputusan Berbasis Data", kriteria: [
+        "Keputusan pemeliharaan berdasarkan data kondisi jalan",
+        "Ketersediaan data kerusakan jalan yang memadai",
+        "Akurasi data hasil survei kondisi jalan",
+        "Konsistensi metode penilaian kondisi jalan",
+        "Data mendukung analisis prioritas yang rasional"
+      ]},
+      { name: "Ketepatan Metode Penanganan", kriteria: [
+        "Tepatnya pemilihan metode sesuai tingkat kerusakan",
+        "Kesesuaian metode dengan jenis kerusakan dominan",
+        "Pemeliharaan dilakukan pada waktu yang tepat",
+        "Tingkat efektivitas penanganan terhadap perbaikan kinerja jalan",
+        "Risiko kegagalan penanganan dapat diminimalkan"
+      ]},
+      { name: "Efektivitas Kinerja Struktur dan Umur Layan", kriteria: [
+        "Efektivitas kinerja struktur jalan",
+        "Peningkatan umur layan pasca pemeliharaan",
+        "Kemampuan jalan menahan beban lalu lintas",
+        "Pengurangan laju penurunan kondisi jalan",
+        "Kinerja perkerasan setelah penanganan stabil"
+      ]},
+      { name: "Efisiensi dan Keberlanjutan Jangka Panjang", kriteria: [
+        "Pemeliharaan jangka panjang lebih diutamakan dibanding perbaikan sesaat",
+        "Biaya siklus hidup jalan lebih efisien",
+        "Strategi penanganan mencegah pemborosan sumber daya",
+        "Intervensi dini memberikan efisiensi lebih tinggi",
+        "Sistem pemeliharaan mendukung keberlanjutan infrastruktur"
+      ]},
+      { name: "Inovasi dan Teknologi", kriteria: [
+        "Inovasi menggunakan teknologi baru",
+        "Pemanfaatan teknologi untuk identifikasi kerusakan lebih akurat",
+        "Penerapan metode konstruksi/pemeliharaan yang lebih efisien",
+        "Penggunaan material yang lebih tahan lama",
+        "Dukungan sistem informasi untuk pengambilan keputusan"
+      ]},
+      { name: "Dampak Lingkungan dan Keberlanjutan", kriteria: [
+        "Minim emisi dan kerusakan lingkungan",
+        "Penggunaan material yang ramah lingkungan",
+        "Potensi daur ulang material perkerasan",
+        "Efisiensi penggunaan sumber daya alam",
+        "Ketahanan jalan terhadap perubahan iklim/cuaca ekstrem"
+      ]}
+    ]
+  },
+  legislator: {
+    label: "Legislator (DPRD)",
+    mainGoal: "Menjamin akuntabilitas, manfaat publik, dan kepentingan masyarakat",
+    desc: "Menilai pemeliharaan jalan dari sisi manfaat publik, pemerataan, transparansi anggaran, responsivitas, dan kesesuaian kebijakan.",
+    briefing: {
+      siapa: "Legislator (DPRD) adalah wakil rakyat yang memiliki fungsi pengawasan, penganggaran, dan penyusunan kebijakan terkait pembangunan dan pemeliharaan infrastruktur jalan di daerah.",
+      poin: [
+        "Manfaat nyata pemeliharaan jalan bagi masyarakat luas",
+        "Pemerataan pembangunan jalan di setiap wilayah",
+        "Transparansi dan akuntabilitas penggunaan anggaran",
+        "Responsivitas terhadap aspirasi dan kebutuhan masyarakat",
+        "Dukungan terhadap agenda pembangunan daerah",
+        "Kesesuaian dengan kebijakan dan kepentingan publik"
+      ]
+    },
+    tujuan: [
+      { name: "Kebermanfaatan bagi Masyarakat", kriteria: [
+        "Kebermanfaatan bagi masyarakat luas",
+        "Mendukung aktivitas sosial dan ekonomi masyarakat",
+        "Meningkatkan mobilitas dan akses layanan dasar",
+        "Memberikan dampak langsung terhadap kesejahteraan masyarakat",
+        "Mengurangi hambatan masyarakat dalam beraktivitas"
+      ]},
+      { name: "Pemerataan Pembangunan Wilayah", kriteria: [
+        "Pemerataan penanganan jalan di setiap daerah",
+        "Perhatian terhadap daerah tertinggal atau kurang berkembang",
+        "Distribusi pembangunan tidak terpusat pada wilayah tertentu",
+        "Peningkatan konektivitas wilayah pedesaan dan pinggiran",
+        "Cakupan pelayanan infrastruktur lebih merata"
+      ]},
+      { name: "Transparansi dan Akuntabilitas Anggaran", kriteria: [
+        "Transparansi anggaran",
+        "Akuntabilitas pelaksanaan sehingga dapat dipertanggungjawabkan",
+        "Ketepatan sasaran penggunaan anggaran",
+        "Efektivitas hasil terhadap anggaran yang dikeluarkan",
+        "Minimnya potensi pemborosan atau penyimpangan"
+      ]},
+      { name: "Responsivitas terhadap Aspirasi Masyarakat", kriteria: [
+        "Respon cepat terhadap aspirasi rakyat",
+        "Keluhan masyarakat dijadikan pertimbangan prioritas",
+        "Hasil reses, musrenbang, dan pengaduan publik diperhatikan",
+        "Kebutuhan lapangan diakomodasi dalam program pemeliharaan",
+        "Program lebih dekat dengan kebutuhan riil masyarakat"
+      ]},
+      { name: "Dukungan terhadap Pembangunan Daerah", kriteria: [
+        "Mendukung aktivitas ekonomi daerah",
+        "Mendukung ketahanan pangan di setiap daerah",
+        "Mendukung distribusi logistik dan hasil produksi lokal",
+        "Mendorong pertumbuhan wilayah",
+        "Sejalan dengan prioritas pembangunan daerah"
+      ]},
+      { name: "Kesesuaian Kebijakan dan Kepentingan Publik", kriteria: [
+        "Selaras dengan kebijakan pembangunan daerah",
+        "Mendukung target pelayanan publik pemerintah daerah",
+        "Sesuai dengan kebutuhan masyarakat jangka menengah dan panjang",
+        "Memiliki nilai strategis bagi pembangunan wilayah",
+        "Meningkatkan legitimasi kebijakan publik di mata masyarakat"
+      ]}
+    ]
+  }
+};
+
+const UMUR_OPTIONS = ["18-25","26-35","36-45","46-55","56-65","66-70"];
+
+const KECAMATAN_CIAMIS = [
+  "Baregbeg","Banjaranyar","Banjarsari","Ciamis","Cidolog","Cihaurbeuti","Cijeungjing",
+  "Cikoneng","Cimaragas","Cipaku","Cisaga","Jatinagara","Kawali","Lakbok","Lumbung",
+  "Pamarican","Panawangan","Panjalu","Panumbangan","Purwadadi","Rajadesa","Rancah",
+  "Sadananya","Sindangkasih","Sukadana","Sukamantri","Tambaksari"
+];
+
+const INSTANSI_PEMERINTAH = ["DPUTRP","BAPPERINDA","DRPKPLH","INSPEKTORAT"];
+const KOMISI_LEGISLATIF = ["Komisi A","Komisi B","Komisi C","Komisi D"];
+const PENGALAMAN_OPTIONS = ["1-5","6-10","11-15","16-20","21-25","26-30"];
+
+const IDENTITY_FIELDS = {
+  pengguna: [
+    { key:"umur", label:"Umur", type:"select", options:UMUR_OPTIONS },
+    { key:"kecamatan", label:"Domisili Kecamatan", type:"select", options:KECAMATAN_CIAMIS }
+  ],
+  pemerintah: [
+    { key:"umur", label:"Umur", type:"select", options:UMUR_OPTIONS },
+    { key:"instansi", label:"Instansi", type:"select", options:INSTANSI_PEMERINTAH }
+  ],
+  akademisi: [
+    { key:"umur", label:"Umur", type:"select", options:UMUR_OPTIONS },
+    { key:"pengalaman", label:"Pengalaman (tahun)", type:"select", options:PENGALAMAN_OPTIONS },
+    { key:"instansi", label:"Instansi", type:"text" }
+  ],
+  legislator: [
+    { key:"umur", label:"Umur", type:"select", options:UMUR_OPTIONS },
+    { key:"komisi", label:"Komisi", type:"select", options:KOMISI_LEGISLATIF }
+  ]
+};
+
+// ====== KONFIGURASI PENYIMPANAN OTOMATIS KE GOOGLE SHEET ======
+// Isi dengan URL Web App Google Apps Script Anda (lihat panduan setup yang
+// diberikan terpisah). Jika dikosongkan, fitur ini otomatis dilewati dan
+// jawaban tetap aman tersimpan sebagai cadangan lokal di perangkat responden.
+// ⬇ Ganti dengan URL Web App dari Google Apps Script Anda setelah deploy
+// Google Sheet target: https://docs.google.com/spreadsheets/d/1wo7BX3nHMUwCRGBLhLDW5aKv20r727d-ENJHw0HO2C0/edit
+const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwG9jwNMW3RZeuc409Hc8cyZ3jECi_na3EJ3E2CNXiD8SRQTbQEHRWFdsqOoLuRMbLbBQ/exec";
+
+const LETTERS = "ABCDEF";
+
+function buildQuestions(stKey){
+  const st = STAKEHOLDERS[stKey];
+  const qs = [];
+  for(let i=0;i<st.tujuan.length;i++){
+    for(let j=i+1;j<st.tujuan.length;j++){
+      qs.push({
+        type:"goal",
+        section:"Perbandingan Antar Tujuan (Cluster)",
+        context:"Dibandingkan terhadap tujuan utama: \"" + st.mainGoal + "\"",
+        left: st.tujuan[i].name,
+        right: st.tujuan[j].name,
+        header: "[TUJUAN] " + st.tujuan[i].name + " vs " + st.tujuan[j].name
+      });
+    }
+  }
+  st.tujuan.forEach((t, ti)=>{
+    for(let i=0;i<t.kriteria.length;i++){
+      for(let j=i+1;j<t.kriteria.length;j++){
+        qs.push({
+          type:"criteria",
+          section:"Tujuan " + LETTERS[ti] + ": " + t.name,
+          context:"Seberapa penting kriteria berikut dalam mendukung tujuan \"" + t.name + "\"?",
+          left: t.kriteria[i],
+          right: t.kriteria[j],
+          header: "[" + LETTERS[ti] + "] " + t.name + ": " + t.kriteria[i] + " vs " + t.kriteria[j]
+        });
+      }
+    }
+  });
+  return qs;
+}
+
+/* ============================ STATE ============================ */
+let state = {
+  view: "welcome",       // welcome | start | briefing | survey | review | done | admin
+  stKey: null,
+  nama: "",
+  identity: {},          // dynamic fields per stakeholder (umur, kecamatan, instansi, pengalaman, komisi)
+  questions: [],
+  answers: [],           // {value, side} or null
+  sections: [],
+  sectionIndex: 0,
+  toast: null,
+  adminData: null,
+  adminLoading: false,
+  lastSubmission: null,
+  storageWorked: null
+};
+
+function setState(patch){
+  state = Object.assign({}, state, patch);
+  render();
+}
+
+function showToast(msg){
+  setState({toast: msg});
+  setTimeout(()=>{ if(state.toast===msg) setState({toast:null}); }, 2600);
+}
+
+/* ============================ HELPERS ============================ */
+function escCsv(val){
+  const s = String(val);
+  if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+
+function valueToMatrix(ans){
+  if(!ans) return "";
+  if(ans.side === "E") return "1";
+  if(ans.side === "L") return String(ans.value);
+  return (1/ans.value).toFixed(6);
+}
+
+function buildPayload(){
+  const id = "anp_resp:" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
+  return {
+    id, stakeholder: state.stKey, stakeholderLabel: STAKEHOLDERS[state.stKey].label,
+    nama: state.nama, identity: Object.assign({}, state.identity),
+    tanggal: new Date().toISOString(),
+    answers: state.answers
+  };
+}
+
+// Best-effort cloud save. Only works when this page is opened inside the
+// Claude.ai artifact viewer (window.storage is injected by that runtime).
+// When the file is opened as a plain .html (double-click, local server,
+// shared via email/USB, etc.) this fails silently and we fall back to the
+// CSV-download path below, which always works in any browser.
+async function trySaveToCloud(payload){
+  try{
+    if(!window.storage || typeof window.storage.set !== "function") return false;
+    await window.storage.set(payload.id, JSON.stringify(payload), true);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+// Same matrix value as valueToMatrix(), but returned as a real JS number
+// (not a text string). This matters specifically for the Google Sheet
+// integration: a JSON number is parsed locale-independently by Apps
+// Script, whereas a text string like "0.111111" gets re-interpreted by
+// Sheets using the spreadsheet's own locale (e.g. Indonesian locale reads
+// "." as a thousands separator instead of a decimal point, corrupting the
+// value). The CSV download keeps using the text version since that file
+// is meant to be read directly, not auto-parsed by a spreadsheet locale.
+function valueToNumber(ans){
+  if(!ans) return "";
+  if(ans.side === "E") return 1;
+  if(ans.side === "L") return ans.value;
+  return 1 / ans.value;
+}
+
+// Builds a "vertical" column payload (one respondent = one new column) for the
+// Google Sheet integration.
+// Format di sheet:
+//   Kolom A  = label baris (Pertanyaan / info identitas)
+//   Kolom B  = Responden 1, Kolom C = Responden 2, dst.
+// Setiap pengiriman membawa:
+//   - rowLabels : array label baris (kolom A), dikirim agar Apps Script bisa
+//                 mencocokkan / membuat baris jika belum ada
+//   - columnData: array nilai untuk kolom responden baru (sesuai urutan rowLabels)
+//   - mode      : "vertical" — sinyal ke Apps Script agar tahu format ini
+function buildSheetPayload(payload){
+  const idFields = IDENTITY_FIELDS[payload.stakeholder] || [];
+  const qs = buildQuestions(payload.stakeholder);
+
+  // Susun label baris: info identitas dulu, lalu tiap pertanyaan
+  const rowLabels = ["Tanggal", "Nama"]
+    .concat(idFields.map(f => f.label))
+    .concat(qs.map(q => q.header));
+
+  // Susun nilai kolom responden ini (urutan sama dengan rowLabels)
+  const columnData = [payload.tanggal, payload.nama]
+    .concat(idFields.map(f => (payload.identity && payload.identity[f.key]) || ""))
+    .concat(qs.map((q, idx) => valueToNumber(payload.answers[idx])));
+
+  return {
+    sheetName: payload.stakeholderLabel,
+    mode: "vertical",
+    rowLabels,
+    columnData
+  };
+}
+
+// Best-effort delivery straight into a Google Sheet (in the researcher's own
+// Google Drive) via a Google Apps Script Web App. Requires SHEET_WEBAPP_URL
+// to be configured above. Uses mode:"no-cors" because Apps Script Web Apps
+// don't return CORS headers, so the response itself cannot be read back —
+// but the request still reaches and executes on the server.
+async function trySendToSheet(payload){
+  if(!SHEET_WEBAPP_URL) return false;
+  try{
+    const sheetPayload = buildSheetPayload(payload);
+    await fetch(SHEET_WEBAPP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(sheetPayload)
+    });
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function loadAdminData(){
+  setState({adminLoading:true});
+  const summary = {};
+  Object.keys(STAKEHOLDERS).forEach(k=> summary[k] = {count:0, items:[]});
+  try{
+    const listRes = await window.storage.list("anp_resp:", true);
+    const keys = (listRes && listRes.keys) ? listRes.keys : [];
+    for(const k of keys){
+      try{
+        const r = await window.storage.get(k, true);
+        if(r && r.value){
+          const obj = JSON.parse(r.value);
+          if(summary[obj.stakeholder]){
+            summary[obj.stakeholder].count++;
+            summary[obj.stakeholder].items.push(obj);
+          }
+        }
+      }catch(e){ /* skip broken key */ }
+    }
+  }catch(e){ /* listing failed, leave empty */ }
+  setState({adminData: summary, adminLoading:false});
+}
+
+function buildCsv(stKey, items){
+  const qs = buildQuestions(stKey);
+  const idFields = IDENTITY_FIELDS[stKey] || [];
+  const colHeader = items.map(it => it.nama || it.id);
+  const rows = [];
+  rows.push(["Keterangan"].concat(colHeader));
+  rows.push(["ID"].concat(items.map(it=>it.id)));
+  rows.push(["Nama"].concat(items.map(it=>it.nama)));
+  idFields.forEach(f=>{
+    rows.push([f.label].concat(items.map(it=> (it.identity && it.identity[f.key]) || "")));
+  });
+  rows.push(["Tanggal"].concat(items.map(it=>it.tanggal)));
+  let lastSection = null;
+  qs.forEach((q, idx)=>{
+    if(q.section !== lastSection){
+      rows.push(["== " + q.section + " =="].concat(items.map(()=>"")));
+      lastSection = q.section;
+    }
+    rows.push([q.left + "  vs  " + q.right].concat(items.map(it=> valueToMatrix(it.answers[idx]))));
+  });
+  return rows.map(r => r.map(escCsv).join(",")).join("\n");
+}
+
+function triggerDownload(filename, csv){
+  const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function downloadCsv(stKey, items){
+  triggerDownload("anp_" + stKey + "_" + Date.now() + ".csv", buildCsv(stKey, items));
+}
+
+function downloadSingleCsv(payload){
+  const safeName = (payload.nama||"responden").trim().toLowerCase().replace(/[^a-z0-9]+/g,"_").slice(0,30) || "responden";
+  triggerDownload("anp_" + payload.stakeholder + "_" + safeName + "_" + Date.now() + ".csv", buildCsv(payload.stakeholder, [payload]));
+}
+
+/* ============================ PAGE HEADER BANNER ============================ */
+// Inline SVG banners — tidak butuh koneksi internet, selalu tampil
+const BANNER_SVGS = [
+  // Scene 1: Pengaspalan jalan — mesin aspal, pekerja, jalan baru
+  `<svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0F2540"/><stop offset="100%" stop-color="#1B3A5C"/></linearGradient>
+      <linearGradient id="rd1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a2a2a"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+      <linearGradient id="mach1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1A9E8F"/><stop offset="100%" stop-color="#127A6E"/></linearGradient>
+    </defs>
+    <!-- Sky -->
+    <rect width="900" height="160" fill="url(#sky1)"/>
+    <!-- Stars/dots -->
+    <circle cx="50" cy="20" r="1.5" fill="rgba(255,255,255,.4)"/>
+    <circle cx="150" cy="12" r="1" fill="rgba(255,255,255,.3)"/>
+    <circle cx="300" cy="18" r="1.5" fill="rgba(255,255,255,.4)"/>
+    <circle cx="500" cy="8" r="1" fill="rgba(255,255,255,.3)"/>
+    <circle cx="700" cy="22" r="1.5" fill="rgba(255,255,255,.4)"/>
+    <circle cx="820" cy="10" r="1" fill="rgba(255,255,255,.3)"/>
+    <!-- Mountains/hills background -->
+    <polygon points="0,100 120,50 240,90 360,40 480,80 600,35 720,70 840,45 900,60 900,160 0,160" fill="#0F2540" opacity=".7"/>
+    <polygon points="0,120 100,80 200,110 350,65 500,100 650,70 800,95 900,75 900,160 0,160" fill="#1B3A5C" opacity=".8"/>
+    <!-- Road surface -->
+    <rect x="0" y="110" width="900" height="50" fill="url(#rd1)"/>
+    <!-- Road markings - center dashed line -->
+    <rect x="0" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="80" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="160" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="240" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="320" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="400" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="480" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="560" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="640" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="720" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <rect x="800" y="133" width="60" height="4" fill="#F0C040" opacity=".8"/>
+    <!-- Road edge lines -->
+    <rect x="0" y="111" width="900" height="3" fill="#fff" opacity=".15"/>
+    <!-- Asphalt paving machine -->
+    <rect x="520" y="82" width="180" height="40" rx="4" fill="url(#mach1)"/>
+    <rect x="510" y="88" width="200" height="30" rx="3" fill="#1A9E8F"/>
+    <rect x="530" y="78" width="40" height="18" rx="2" fill="#127A6E"/>
+    <rect x="580" y="75" width="60" height="14" rx="2" fill="#0F6A5E"/>
+    <!-- Machine wheels/rollers -->
+    <ellipse cx="545" cy="122" rx="16" ry="10" fill="#111"/>
+    <ellipse cx="545" cy="122" rx="10" ry="6" fill="#222"/>
+    <ellipse cx="680" cy="122" rx="16" ry="10" fill="#111"/>
+    <ellipse cx="680" cy="122" rx="10" ry="6" fill="#222"/>
+    <!-- Exhaust pipe -->
+    <rect x="695" y="68" width="8" height="22" rx="4" fill="#0F6A5E"/>
+    <ellipse cx="699" cy="68" rx="6" ry="3" fill="#1A9E8F" opacity=".6"/>
+    <!-- Smoke -->
+    <ellipse cx="699" cy="58" rx="7" ry="5" fill="rgba(255,255,255,.12)"/>
+    <ellipse cx="703" cy="48" rx="5" ry="4" fill="rgba(255,255,255,.08)"/>
+    <!-- Steam roller -->
+    <rect x="730" y="88" width="100" height="36" rx="4" fill="#254E7A"/>
+    <ellipse cx="755" cy="124" rx="18" ry="12" fill="#1a1a1a"/>
+    <ellipse cx="755" cy="124" rx="12" ry="8" fill="#2a2a2a"/>
+    <ellipse cx="810" cy="124" rx="18" ry="12" fill="#1a1a1a"/>
+    <ellipse cx="810" cy="124" rx="12" ry="8" fill="#2a2a2a"/>
+    <rect x="745" y="80" width="30" height="16" rx="2" fill="#1B3A5C"/>
+    <!-- Worker figures -->
+    <circle cx="480" cy="90" r="8" fill="#F5C518"/>
+    <rect x="475" y="98" width="10" height="18" rx="2" fill="#E07020"/>
+    <rect x="473" y="100" width="5" height="12" rx="1" fill="#E07020"/>
+    <rect x="482" y="100" width="5" height="12" rx="1" fill="#E07020"/>
+    <rect x="476" y="116" width="4" height="10" rx="1" fill="#333"/>
+    <rect x="481" y="116" width="4" height="10" rx="1" fill="#333"/>
+    <!-- Worker 2 -->
+    <circle cx="460" cy="92" r="7" fill="#F5C518"/>
+    <rect x="456" y="99" width="8" height="16" rx="2" fill="#1A9E8F"/>
+    <rect x="454" y="101" width="4" height="10" rx="1" fill="#1A9E8F"/>
+    <rect x="462" y="101" width="4" height="10" rx="1" fill="#1A9E8F"/>
+    <rect x="457" y="115" width="3" height="9" rx="1" fill="#333"/>
+    <rect x="461" y="115" width="3" height="9" rx="1" fill="#333"/>
+    <!-- Traffic cones -->
+    <polygon points="840,110 847,90 854,110" fill="#FF6B35"/>
+    <rect x="838" y="108" width="18" height="4" rx="1" fill="#FF6B35" opacity=".7"/>
+    <rect x="840" y="98" width="14" height="3" rx="1" fill="#fff" opacity=".8"/>
+    <polygon points="858,110 864,93 870,110" fill="#FF6B35"/>
+    <rect x="856" y="108" width="16" height="4" rx="1" fill="#FF6B35" opacity=".7"/>
+    <rect x="858" y="100" width="12" height="3" rx="1" fill="#fff" opacity=".8"/>
+    <polygon points="875,110 880,95 885,110" fill="#FF6B35"/>
+    <rect x="873" y="108" width="14" height="4" rx="1" fill="#FF6B35" opacity=".7"/>
+    <!-- Warning sign -->
+    <rect x="390" y="75" width="6" height="38" fill="#888"/>
+    <polygon points="393,62 404,80 382,80" fill="#FFCC00"/>
+    <text x="393" y="76" text-anchor="middle" font-size="10" font-weight="bold" fill="#111">!</text>
+    <!-- Overlay gradient for text readability -->
+    <rect width="900" height="160" fill="url(#sky1)" opacity=".45"/>
+  </svg>`,
+
+  // Scene 2: Survei kondisi jalan — crack, pengukuran, clipboard
+  `<svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0A1E35"/><stop offset="100%" stop-color="#1B3A5C"/></linearGradient>
+      <linearGradient id="road2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3a3a3a"/><stop offset="100%" stop-color="#2a2a2a"/></linearGradient>
+    </defs>
+    <rect width="900" height="160" fill="url(#sky2)"/>
+    <!-- Background buildings silhouette -->
+    <rect x="20" y="60" width="40" height="60" fill="#0F2540" opacity=".6"/>
+    <rect x="30" y="50" width="20" height="70" fill="#0F2540" opacity=".5"/>
+    <rect x="80" y="70" width="30" height="50" fill="#0F2540" opacity=".5"/>
+    <rect x="120" y="55" width="50" height="65" fill="#0F2540" opacity=".6"/>
+    <rect x="800" y="65" width="50" height="55" fill="#0F2540" opacity=".5"/>
+    <rect x="830" y="50" width="30" height="70" fill="#0F2540" opacity=".6"/>
+    <rect x="860" y="60" width="40" height="60" fill="#0F2540" opacity=".5"/>
+    <!-- Windows lights on buildings -->
+    <rect x="25" y="65" width="8" height="6" rx="1" fill="#F0C040" opacity=".6"/>
+    <rect x="38" y="65" width="8" height="6" rx="1" fill="#1A9E8F" opacity=".6"/>
+    <rect x="25" y="78" width="8" height="6" rx="1" fill="#1A9E8F" opacity=".5"/>
+    <rect x="125" y="60" width="8" height="6" rx="1" fill="#F0C040" opacity=".6"/>
+    <rect x="140" y="60" width="8" height="6" rx="1" fill="#fff" opacity=".4"/>
+    <rect x="805" y="70" width="8" height="6" rx="1" fill="#F0C040" opacity=".6"/>
+    <rect x="835" y="55" width="8" height="6" rx="1" fill="#1A9E8F" opacity=".5"/>
+    <!-- Road -->
+    <rect x="0" y="108" width="900" height="52" fill="url(#road2)"/>
+    <rect x="0" y="108" width="900" height="3" fill="#fff" opacity=".1"/>
+    <!-- Road cracks / damage -->
+    <path d="M200 115 L210 125 L205 135 L215 145" stroke="#555" stroke-width="2" fill="none"/>
+    <path d="M210 125 L220 128" stroke="#555" stroke-width="1.5" fill="none"/>
+    <path d="M300 112 L308 120 L302 130" stroke="#555" stroke-width="2" fill="none"/>
+    <path d="M350 118 Q360 122 355 132 Q365 136 360 145" stroke="#555" stroke-width="2" fill="none"/>
+    <path d="M580 114 L590 122 L585 130 L595 140" stroke="#555" stroke-width="2" fill="none"/>
+    <path d="M590 122 L600 125" stroke="#555" stroke-width="1.5" fill="none"/>
+    <!-- Pothole -->
+    <ellipse cx="450" cy="135" rx="25" ry="14" fill="#1a1a1a"/>
+    <ellipse cx="450" cy="133" rx="20" ry="10" fill="#111"/>
+    <!-- Measurement tape on road -->
+    <rect x="160" y="126" width="120" height="8" rx="2" fill="#F0C040" opacity=".8"/>
+    <line x1="160" y1="126" x2="160" y2="134" stroke="#E07020" stroke-width="2"/>
+    <line x1="190" y1="126" x2="190" y2="134" stroke="#E07020" stroke-width="1"/>
+    <line x1="220" y1="126" x2="220" y2="134" stroke="#E07020" stroke-width="1"/>
+    <line x1="250" y1="126" x2="250" y2="134" stroke="#E07020" stroke-width="2"/>
+    <line x1="280" y1="126" x2="280" y2="134" stroke="#E07020" stroke-width="1"/>
+    <!-- Survey worker with clipboard -->
+    <circle cx="640" cy="88" r="9" fill="#F5C518"/>
+    <rect x="634" y="97" width="12" height="22" rx="2" fill="#1B3A5C"/>
+    <rect x="632" y="99" width="5" height="14" rx="1" fill="#1B3A5C"/>
+    <!-- arm holding clipboard -->
+    <rect x="645" y="100" width="5" height="12" rx="1" fill="#1B3A5C"/>
+    <rect x="648" y="105" width="20" height="14" rx="2" fill="#fff"/>
+    <rect x="650" y="107" width="16" height="2" rx="1" fill="#CCC"/>
+    <rect x="650" y="111" width="14" height="2" rx="1" fill="#CCC"/>
+    <rect x="650" y="115" width="12" height="2" rx="1" fill="#1A9E8F"/>
+    <rect x="636" y="119" width="5" height="12" rx="1" fill="#333"/>
+    <rect x="641" y="119" width="5" height="12" rx="1" fill="#333"/>
+    <!-- Hard hat -->
+    <ellipse cx="640" cy="83" rx="11" ry="7" fill="#FF6B35"/>
+    <!-- Worker 2 kneeling -->
+    <circle cx="700" cy="95" r="8" fill="#F5C518"/>
+    <rect x="695" y="103" width="10" height="16" rx="2" fill="#E07020"/>
+    <rect x="693" y="105" width="4" height="10" rx="1" fill="#E07020"/>
+    <rect x="705" y="105" width="4" height="10" rx="1" fill="#E07020"/>
+    <rect x="696" y="119" width="4" height="6" rx="1" fill="#333"/>
+    <rect x="700" y="119" width="4" height="6" rx="1" fill="#333"/>
+    <ellipse cx="700" cy="90" rx="10" ry="6" fill="#F0C040"/>
+    <!-- Survey pole/rod -->
+    <rect x="735" y="78" width="5" height="45" rx="2" fill="#AAAAAA"/>
+    <rect x="733" y="78" width="9" height="5" rx="1" fill="#FF3333"/>
+    <rect x="733" y="88" width="9" height="5" rx="1" fill="#fff"/>
+    <rect x="733" y="98" width="9" height="5" rx="1" fill="#FF3333"/>
+    <rect x="733" y="108" width="9" height="5" rx="1" fill="#fff"/>
+    <!-- Traffic cones -->
+    <polygon points="390,108 397,90 404,108" fill="#FF6B35"/>
+    <rect x="388" y="106" width="18" height="4" rx="1" fill="#FF6B35" opacity=".7"/>
+    <rect x="390" y="97" width="14" height="3" rx="1" fill="#fff" opacity=".8"/>
+    <polygon points="420,108 426,93 432,108" fill="#FF6B35"/>
+    <rect x="418" y="106" width="16" height="4" rx="1" fill="#FF6B35" opacity=".7"/>
+    <!-- Overlay -->
+    <rect width="900" height="160" fill="url(#sky2)" opacity=".45"/>
+  </svg>`,
+
+  // Scene 3: Pengecatan marka jalan & rambu
+  `<svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="sky3" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0F2540"/><stop offset="100%" stop-color="#1B3A5C"/></linearGradient>
+      <linearGradient id="road3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#383838"/><stop offset="100%" stop-color="#202020"/></linearGradient>
+    </defs>
+    <rect width="900" height="160" fill="url(#sky3)"/>
+    <!-- Tree silhouettes -->
+    <rect x="30" y="80" width="8" height="35" fill="#0A1E35"/>
+    <ellipse cx="34" cy="72" rx="18" ry="22" fill="#127A6E" opacity=".7"/>
+    <rect x="70" y="85" width="6" height="30" fill="#0A1E35"/>
+    <ellipse cx="73" cy="78" rx="14" ry="18" fill="#1A9E8F" opacity=".6"/>
+    <rect x="820" y="78" width="8" height="37" fill="#0A1E35"/>
+    <ellipse cx="824" cy="70" rx="18" ry="22" fill="#127A6E" opacity=".7"/>
+    <rect x="855" y="82" width="6" height="33" fill="#0A1E35"/>
+    <ellipse cx="858" cy="75" rx="15" ry="19" fill="#1A9E8F" opacity=".6"/>
+    <!-- Moon -->
+    <circle cx="750" cy="28" r="18" fill="#F0E080" opacity=".25"/>
+    <circle cx="758" cy="24" r="14" fill="#0F2540"/>
+    <!-- Road -->
+    <rect x="0" y="105" width="900" height="55" fill="url(#road3)"/>
+    <rect x="0" y="105" width="900" height="2.5" fill="#fff" opacity=".12"/>
+    <!-- Fresh white marking being painted -->
+    <rect x="50" y="129" width="80" height="6" rx="1" fill="#fff" opacity=".95"/>
+    <rect x="150" y="129" width="80" height="6" rx="1" fill="#fff" opacity=".95"/>
+    <rect x="250" y="129" width="80" height="6" rx="1" fill="#fff" opacity=".95"/>
+    <rect x="350" y="129" width="80" height="6" rx="1" fill="#fff" opacity=".95"/>
+    <!-- Partially painted marking -->
+    <rect x="450" y="129" width="40" height="6" rx="1" fill="#fff" opacity=".95"/>
+    <!-- Road marking machine -->
+    <rect x="490" y="100" width="100" height="32" rx="4" fill="#254E7A"/>
+    <rect x="500" y="96" width="30" height="12" rx="2" fill="#1B3A5C"/>
+    <rect x="540" y="94" width="40" height="10" rx="2" fill="#1A9E8F"/>
+    <!-- paint spray nozzle -->
+    <rect x="488" y="127" width="8" height="10" rx="2" fill="#F0C040"/>
+    <ellipse cx="492" cy="137" rx="5" ry="3" fill="#fff" opacity=".6"/>
+    <!-- wheels -->
+    <ellipse cx="510" cy="132" rx="12" ry="8" fill="#111"/>
+    <ellipse cx="570" cy="132" rx="12" ry="8" fill="#111"/>
+    <!-- Road signs -->
+    <rect x="200" y="65" width="7" height="48" fill="#888"/>
+    <rect x="190" y="55" width="27" height="18" rx="2" fill="#1A9E8F"/>
+    <text x="203" y="67" text-anchor="middle" font-size="7" fill="#fff" font-weight="bold">STOP</text>
+    <!-- Speed limit sign -->
+    <rect x="650" y="62" width="7" height="50" fill="#888"/>
+    <circle cx="653" cy="55" r="15" fill="#fff"/>
+    <circle cx="653" cy="55" r="13" fill="#fff"/>
+    <circle cx="653" cy="55" r="11" fill="#E02020" opacity=".0"/>
+    <text x="653" y="59" text-anchor="middle" font-size="10" fill="#E02020" font-weight="bold">40</text>
+    <circle cx="653" cy="55" r="13" fill="none" stroke="#E02020" stroke-width="2.5"/>
+    <!-- Workers painting by hand -->
+    <circle cx="440" cy="92" r="8" fill="#F5C518"/>
+    <ellipse cx="440" cy="87" rx="9" ry="6" fill="#FF6B35"/>
+    <rect x="435" y="100" width="10" height="18" rx="2" fill="#fff"/>
+    <rect x="433" y="102" width="5" height="10" rx="1" fill="#fff"/>
+    <!-- arm with paint roller -->
+    <rect x="444" y="103" width="4" height="10" rx="1" fill="#fff"/>
+    <rect x="446" y="112" width="2" height="14" rx="1" fill="#888"/>
+    <rect x="440" y="124" width="16" height="5" rx="2" fill="#1A9E8F"/>
+    <rect x="437" y="118" width="5" height="10" rx="1" fill="#333"/>
+    <rect x="442" y="118" width="5" height="10" rx="1" fill="#333"/>
+    <!-- Overlay -->
+    <rect width="900" height="160" fill="url(#sky3)" opacity=".42"/>
+  </svg>`,
+
+  // Scene 4: Perbaikan gorong-gorong & drainase
+  `<svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0A1E35"/><stop offset="100%" stop-color="#1B4A6B"/></linearGradient>
+      <linearGradient id="soil4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5D4037"/><stop offset="100%" stop-color="#3E2723"/></linearGradient>
+      <linearGradient id="road4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#333"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+    </defs>
+    <rect width="900" height="160" fill="url(#sky4)"/>
+    <!-- Clouds -->
+    <ellipse cx="150" cy="30" rx="50" ry="18" fill="rgba(255,255,255,.08)"/>
+    <ellipse cx="180" cy="25" rx="40" ry="15" fill="rgba(255,255,255,.06)"/>
+    <ellipse cx="700" cy="22" rx="55" ry="17" fill="rgba(255,255,255,.07)"/>
+    <ellipse cx="730" cy="18" rx="40" ry="14" fill="rgba(255,255,255,.06)"/>
+    <!-- Road surface -->
+    <rect x="0" y="95" width="900" height="20" fill="url(#road4)"/>
+    <rect x="0" y="95" width="900" height="2" fill="#fff" opacity=".1"/>
+    <!-- Road markings -->
+    <rect x="0" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="70" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="140" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="210" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="590" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="660" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="730" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <rect x="800" y="104" width="50" height="3" fill="#F0C040" opacity=".7"/>
+    <!-- Excavation / trench -->
+    <rect x="280" y="95" width="300" height="65" fill="url(#soil4)"/>
+    <!-- Soil layers -->
+    <rect x="280" y="120" width="300" height="15" fill="#4E342E" opacity=".8"/>
+    <rect x="280" y="140" width="300" height="20" fill="#3E2723" opacity=".9"/>
+    <!-- Culvert/pipe being installed -->
+    <ellipse cx="430" cy="148" rx="35" ry="22" fill="#1B3A5C"/>
+    <ellipse cx="430" cy="148" rx="28" ry="16" fill="#0F2540"/>
+    <ellipse cx="430" cy="148" rx="22" ry="12" fill="#1A9E8F" opacity=".3"/>
+    <!-- pipe horizontal section -->
+    <rect x="280" y="136" width="115" height="24" rx="2" fill="#1B3A5C"/>
+    <rect x="280" y="139" width="115" height="18" rx="2" fill="#0F2540"/>
+    <rect x="465" y="136" width="115" height="24" rx="2" fill="#1B3A5C"/>
+    <rect x="465" y="139" width="115" height="18" rx="2" fill="#0F2540"/>
+    <!-- Water in drain -->
+    <rect x="280" y="143" width="115" height="8" rx="2" fill="#1A9E8F" opacity=".4"/>
+    <rect x="465" y="143" width="115" height="8" rx="2" fill="#1A9E8F" opacity=".4"/>
+    <!-- Excavator -->
+    <rect x="600" y="68" width="90" height="40" rx="4" fill="#F0A030"/>
+    <rect x="615" y="62" width="35" height="18" rx="2" fill="#F0A030"/>
+    <rect x="618" y="64" width="28" height="14" rx="1" fill="#90CAF9" opacity=".5"/>
+    <!-- Excavator arm -->
+    <rect x="690" y="55" width="10" height="55" rx="3" fill="#D4881E" transform="rotate(-30 690 55)"/>
+    <rect x="710" y="85" width="10" height="45" rx="3" fill="#D4881E" transform="rotate(20 710 85)"/>
+    <!-- Bucket -->
+    <polygon points="720,118 740,118 745,135 715,135" fill="#B07010"/>
+    <!-- Tracks -->
+    <rect x="595" y="105" width="100" height="12" rx="6" fill="#333"/>
+    <rect x="598" y="107" width="94" height="8" rx="5" fill="#444"/>
+    <!-- Excavator wheel details -->
+    <circle cx="610" cy="111" r="5" fill="#555"/>
+    <circle cx="630" cy="111" r="5" fill="#555"/>
+    <circle cx="650" cy="111" r="5" fill="#555"/>
+    <circle cx="670" cy="111" r="5" fill="#555"/>
+    <circle cx="685" cy="111" r="5" fill="#555"/>
+    <!-- Workers -->
+    <circle cx="260" cy="88" r="8" fill="#F5C518"/>
+    <ellipse cx="260" cy="83" rx="9" ry="6" fill="#1A9E8F"/>
+    <rect x="255" y="96" width="10" height="18" rx="2" fill="#1B3A5C"/>
+    <!-- shovel -->
+    <rect x="264" y="98" width="3" height="20" rx="1" fill="#888"/>
+    <ellipse cx="265" cy="118" rx="5" ry="3" fill="#888"/>
+    <rect x="257" y="114" width="4" height="10" rx="1" fill="#333"/>
+    <rect x="261" y="114" width="4" height="10" rx="1" fill="#333"/>
+    <!-- Worker 2 -->
+    <circle cx="580" cy="87" r="8" fill="#F5C518"/>
+    <ellipse cx="580" cy="82" rx="9" ry="6" fill="#FF6B35"/>
+    <rect x="575" y="95" width="10" height="18" rx="2" fill="#E07020"/>
+    <rect x="573" y="97" width="4" height="12" rx="1" fill="#E07020"/>
+    <rect x="583" y="97" width="4" height="12" rx="1" fill="#E07020"/>
+    <rect x="576" y="113" width="4" height="10" rx="1" fill="#333"/>
+    <rect x="580" y="113" width="4" height="10" rx="1" fill="#333"/>
+    <!-- Safety barrier -->
+    <rect x="270" y="90" width="5" height="18" rx="1" fill="#FF6B35"/>
+    <rect x="540" y="90" width="5" height="18" rx="1" fill="#FF6B35"/>
+    <line x1="272" y1="95" x2="542" y2="95" stroke="#FF6B35" stroke-width="2" stroke-dasharray="8,6"/>
+    <!-- Overlay -->
+    <rect width="900" height="160" fill="url(#sky4)" opacity=".38"/>
+  </svg>`
+];
+
+let _bannerIdx = 0;
+
+function pageHeader(badge, badgeClass, title, sub){
+  const svg = BANNER_SVGS[_bannerIdx % BANNER_SVGS.length];
+  _bannerIdx++;
+  const bc = badgeClass ? ' '+badgeClass : '';
+  const subHtml = sub ? '<p class="header-sub">'+sub+'</p>' : '';
+  return '<div class="page-header">' +
+    svg +
+    '<div class="page-header-content">' +
+      '<span class="badge'+bc+'">'+badge+'</span>' +
+      '<h1 class="title">'+title+'</h1>' +
+      subHtml +
+    '</div>' +
+  '</div>' +
+  '<div class="page-body">';
+}
+function pageEnd(){ return '</div>'; }
+
+/* ============================ RENDER: WELCOME ============================ */
+function renderWelcome(){
+  return pageHeader('Kuesioner Penelitian','','Selamat Datang','Pemeliharaan Jalan Kabupaten Ciamis') +
+  '<div class="card">' +
+    '<p class="lede" style="margin-bottom:14px">Salam Sejahtera, Bapak/Ibu/Saudara/i</p>' +
+    '<p class="lede" style="margin-bottom:14px">Mohon kesediaan Bapak/Ibu untuk meluangkan waktu guna mengisi kuesioner penelitian yang berjudul:</p>' +
+    '<p class="quote-title">&ldquo;ANALISIS SUDUT PANDANG STAKEHOLDER DALAM PEMELIHARAAN JALAN DENGAN METODE MAMCA (MULTI ACTOR MULTI CRITERIA ANALYSIS) DAN ANP (ANALYTICAL NETWORK PROCESS) DI KABUPATEN CIAMIS&rdquo;</p>' +
+    '<p class="lede" style="margin-bottom:14px">Kuesioner ini bertujuan untuk mengidentifikasi kriteria pemeliharaan jalan berdasarkan sudut pandang pemangku kepentingan (stakeholder). Seluruh data identitas dan penilaian yang Bapak/Ibu berikan akan digunakan semata-mata untuk keperluan penelitian ilmiah dan dijamin kerahasiaannya.</p>' +
+    '<p class="lede" style="margin-bottom:4px">Atas perhatian dan kesediaan Bapak/Ibu, kami ucapkan terima kasih.</p>' +
+    '<p class="signoff">Hormat kami,<br>' +
+      '<strong>Shintya Amallia Indarwati, S.T.</strong><br>' +
+      'Program Studi Magister Teknik Sipil<br>' +
+      'Institut Teknologi Nasional (ITENAS) Bandung</p>' +
+    '<button class="btn-primary" onclick="setState({view:\'start\'})">Lanjut Mengisi Kuesioner</button>' +
+  '</div>' + pageEnd();
+}
+
+/* ============================ RENDER: START (identitas) ============================ */
+function renderStart(){
+  const opts = Object.entries(STAKEHOLDERS).map(([key, st])=>{
+    const sel = state.stKey === key;
+    return '<div class="radio-opt' + (sel?' selected':'') + '" data-key="'+key+'" onclick="selectStakeholder(\''+key+'\')">' +
+      '<input type="radio" name="stakeholder" '+(sel?'checked':'')+' readonly>' +
+      '<div><div class="ro-title">'+st.label+'</div><div class="ro-desc">'+st.desc+'</div></div>' +
+      '</div>';
+  }).join("");
+
+  const idFields = state.stKey ? (IDENTITY_FIELDS[state.stKey]||[]) : [];
+  const idFieldsHtml = idFields.map(f=>{
+    const val = state.identity[f.key] || "";
+    if(f.type === "select"){
+      const optsHtml = '<option value="">Pilih ' + f.label.toLowerCase() + '</option>' +
+        f.options.map(o=>'<option value="'+escapeHtml(o)+'" '+(val===o?'selected':'')+'>'+escapeHtml(o)+'</option>').join("");
+      return '<label class="field-label">'+f.label+'</label>' +
+        '<select class="select-field" onchange="updateIdentity(\''+f.key+'\', this.value)">'+optsHtml+'</select>';
+    }
+    return '<label class="field-label">'+f.label+'</label>' +
+      '<input type="text" value="'+escapeHtml(val)+'" placeholder="Isi '+f.label.toLowerCase()+'" oninput="updateIdentity(\''+f.key+'\', this.value)">';
+  }).join("");
+
+  return '' +
+  pageHeader('Kuesioner ANP · Pemeliharaan Jalan','','Data Responden','Lengkapi data diri sebelum mulai mengisi kuesioner') +
+  '<div class="card">' +
+    '<label class="field-label">Anda Mengisi Kuesioner Sebagai</label>' +
+    '<div class="radio-grid">'+opts+'</div>' +
+    '<label class="field-label" style="margin-top:18px">Nama Lengkap</label>' +
+    '<input type="text" id="inpNama" value="'+escapeHtml(state.nama)+'" placeholder="Masukkan nama Anda" oninput="updateField(\'nama\', this.value)">' +
+    idFieldsHtml +
+    '<button class="btn-primary" id="btnStart" onclick="goBriefing()" disabled>Lanjut</button>' +
+  '</div>' +
+  '<div class="footer-link"><button class="btn-link" onclick="goAdmin()">Mode Admin — lihat &amp; unduh data responden</button></div>' + pageEnd();
+}
+
+function escapeHtml(s){
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+window.selectStakeholder = function(key){
+  setState({stKey:key, identity:{}});
+  checkStartEnabled();
+};
+window.updateField = function(field, val){
+  state[field] = val; // avoid full re-render to keep input focus
+  checkStartEnabled();
+};
+window.updateIdentity = function(key, val){
+  state.identity[key] = val;
+  checkStartEnabled();
+};
+function checkStartEnabled(){
+  const btn = document.getElementById("btnStart");
+  if(!btn) return;
+  const idFields = state.stKey ? (IDENTITY_FIELDS[state.stKey]||[]) : [];
+  const idFilled = idFields.every(f => state.identity[f.key] && String(state.identity[f.key]).trim().length>0);
+  btn.disabled = !(state.stKey && state.nama.trim().length>0 && idFilled);
+}
+
+window.goBriefing = function(){
+  setState({view:"briefing"});
+};
+
+/* ============================ RENDER: BRIEFING ============================ */
+function renderBriefing(){
+  const st = STAKEHOLDERS[state.stKey];
+  const poinHtml = st.briefing.poin.map(p=>'<li>'+p+'</li>').join("");
+  return pageHeader('Sebelum Memulai','teal','Penjelasan Responden','Peran dan konteks Anda dalam penelitian ini') +
+  '<div class="card">' +
+    '<p class="lede" style="margin-bottom:14px">Kuesioner ini ditujukan kepada Bapak/Ibu/Saudara/i selaku <strong>'+st.label.toUpperCase()+'</strong> di Kabupaten Ciamis.</p>' +
+    '<p class="lede" style="margin-bottom:14px">'+st.briefing.siapa+'</p>' +
+    '<p class="lede" style="margin-bottom:6px">Tujuan keterlibatan '+st.label.toLowerCase()+' dalam penelitian ini adalah:</p>' +
+    '<p class="quote-title" style="font-size:15px;text-transform:none;letter-spacing:0;text-align:left">'+st.mainGoal+'.</p>' +
+    '<p class="lede" style="margin-bottom:6px">Maksudnya, '+st.label.toLowerCase()+' berkepentingan agar pemeliharaan jalan memperhatikan:</p>' +
+    '<ul class="poin-list">'+poinHtml+'</ul>' +
+  '</div>' +
+  '<div class="card">' +
+    '<div class="section-tag">Panduan Pengisian Kuesioner</div>' +
+    '<p class="lede" style="margin-bottom:10px">Kuesioner ini menggunakan skala perbandingan berpasangan (1&ndash;9) untuk menilai tingkat kepentingan antar kriteria.</p>' +
+    '<table class="scale-guide">' +
+      '<tr><td>1</td><td>Sama penting</td></tr>' +
+      '<tr><td>3</td><td>Sedikit lebih penting</td></tr>' +
+      '<tr><td>5</td><td>Lebih penting</td></tr>' +
+      '<tr><td>7</td><td>Sangat lebih penting</td></tr>' +
+      '<tr><td>9</td><td>Mutlak lebih penting</td></tr>' +
+      '<tr><td>2, 4, 6, 8</td><td>Nilai tengah antara dua penilaian di atas</td></tr>' +
+    '</table>' +
+    '<button class="btn-primary" onclick="startSurvey()">Mulai Menjawab Pertanyaan</button>' +
+  '</div>' + pageEnd();
+}
+
+window.startSurvey = function(){
+  const qs = buildQuestions(state.stKey);
+  setState({
+    view:"survey",
+    questions: qs,
+    answers: new Array(qs.length).fill(null),
+    sections: buildSections(qs),
+    sectionIndex: 0
+  });
+};
+
+function buildSections(qs){
+  const sections = [];
+  let current = null;
+  qs.forEach((q, i)=>{
+    if(!current || current.section !== q.section){
+      current = { section:q.section, context:q.context, indices:[] };
+      sections.push(current);
+    }
+    current.indices.push(i);
+  });
+  return sections;
+}
+
+/* ============================ RENDER: SURVEY (section, many questions stacked) ============================ */
+function renderSurvey(){
+  const st = STAKEHOLDERS[state.stKey];
+  const sections = state.sections;
+  const sec = sections[state.sectionIndex];
+  const totalSections = sections.length;
+  const pct = Math.round((state.sectionIndex/totalSections)*100);
+  const isLast = state.sectionIndex === totalSections-1;
+  const allAnswered = sec.indices.every(qi=>state.answers[qi]);
+
+  const leftVals = [9,8,7,6,5,4,3,2];
+  const rightVals = [2,3,4,5,6,7,8,9];
+
+  function scaleRowHtml(qi){
+    const ans = state.answers[qi];
+    function b(val, side){
+      const isSel = ans && ans.side===side && ans.value===val;
+      const cls = "scale-btn" + (isSel?" selected":"");
+      return '<button class="'+cls+'" data-qi="'+qi+'" onclick="pickAnswer('+qi+','+val+',\''+side+'\',this)">'+val+'</button>';
+    }
+    let row = leftVals.map(v=>b(v,"L")).join("");
+    row += '<button class="scale-btn center'+(ans && ans.side==="E" ? " selected":"")+'" data-qi="'+qi+'" onclick="pickAnswer('+qi+',1,\'E\',this)">1</button>';
+    row += rightVals.map(v=>b(v,"R")).join("");
+    return row;
+  }
+
+  // Buat semua blok pertanyaan
+  const allQBlocks = sec.indices.map((qi, n)=>{
+    const q   = state.questions[qi];
+    const ans = state.answers[qi];
+    const done = !!ans;
+    return '' +
+    '<div class="qblock'+(done?' qblock-done':'')+'" id="qblock-'+qi+'">' +
+      '<div class="qblock-num">' +
+        '<span class="qnum-badge">'+(n+1)+'</span>' +
+        '<span style="font-size:11px;color:var(--muted)">dari '+sec.indices.length+'</span>' +
+        (done?'<span class="qnum-check"> ✓</span>':'') +
+      '</div>' +
+      '<div class="pair-row">' +
+        '<div class="pair-label left">'+q.left+'</div>' +
+        '<div class="pair-label right">'+q.right+'</div>' +
+      '</div>' +
+      '<div class="scale-wrap"><div class="scale-row">'+scaleRowHtml(qi)+'</div></div>' +
+      '<div class="scale-caption">' +
+        '<span>&larr; '+truncate(q.left)+'</span>' +
+        '<span>'+truncate(q.right)+' &rarr;</span>' +
+      '</div>' +
+    '</div>';
+  });
+
+  // Pisah ke 2 kolom (kiri=genap, kanan=ganjil) lalu gabung
+  const col1 = allQBlocks.filter((_,i)=>i%2===0);
+  const col2 = allQBlocks.filter((_,i)=>i%2!==0);
+  const itemsHtml =
+    '<div class="q2col">' +
+      '<div class="q2col-left">'  + col1.join('<div class="qdivider"></div>') + '</div>' +
+      '<div class="q2col-right">' + col2.join('<div class="qdivider"></div>') + '</div>' +
+    '</div>';
+
+  return pageHeader('Pertanyaan','teal',sec.section,'Bagian '+(state.sectionIndex+1)+' dari '+totalSections) +
+  '<div class="road-wrap">' +
+    '<div class="road-meta"><span>'+st.label+'</span><span>Bagian '+(state.sectionIndex+1)+' dari '+totalSections+'</span></div>' +
+    '<div class="road"><div class="road-fill" style="width:'+pct+'%"></div></div>' +
+  '</div>' +
+  '<div class="card">' +
+    '<div class="section-tag">'+sec.section+'</div>' +
+    '<div class="goal-context">'+sec.context+'</div>' +
+    '<p class="helper" style="margin:0 0 14px;text-align:left">Pilih angka 1 (sama penting) hingga 9 (mutlak lebih penting) ke arah kriteria yang lebih dominan, untuk setiap pasangan di bawah ini.</p>' +
+    itemsHtml +
+    '<div class="btn-row" id="navRow">' +
+      '<button class="btn-secondary" onclick="prevSection()" '+(state.sectionIndex===0?'disabled':'')+' style="flex:1">Kembali</button>' +
+      '<button class="btn-primary" id="btnNextSection" style="margin-top:0;flex:2" onclick="nextSection()" '+(!allAnswered?'disabled':'')+'>'+(isLast?'Selesai &amp; Tinjau':'Lanjut ke Bagian Berikutnya')+'</button>' +
+    '</div>' +
+  '</div>' + pageEnd();
+}
+
+function truncate(s){ return s.length>34 ? s.slice(0,32)+"…" : s; }
+
+window.pickAnswer = function(qi, val, side, btnEl){
+  state.answers[qi] = {value:val, side:side};
+  const block = document.getElementById("qblock-"+qi);
+  if(block){
+    block.querySelectorAll(".scale-btn").forEach(b=>b.classList.remove("selected"));
+    if(btnEl) btnEl.classList.add("selected");
+  }
+  const sec = state.sections[state.sectionIndex];
+  const allAnswered = sec.indices.every(idx=>state.answers[idx]);
+  const nextBtn = document.getElementById("btnNextSection");
+  if(nextBtn) nextBtn.disabled = !allAnswered;
+};
+window.nextSection = function(){
+  if(state.sectionIndex < state.sections.length-1){
+    setState({sectionIndex: state.sectionIndex+1});
+    window.scrollTo(0,0);
+  } else {
+    setState({view:"review"});
+  }
+};
+window.prevSection = function(){
+  if(state.sectionIndex>0){
+    setState({sectionIndex: state.sectionIndex-1});
+    window.scrollTo(0,0);
+  }
+};
+
+/* ============================ RENDER: REVIEW ============================ */
+function renderReview(){
+  const st = STAKEHOLDERS[state.stKey];
+  const answered = state.answers.filter(a=>a).length;
+  const idFields = IDENTITY_FIELDS[state.stKey] || [];
+  const idRows = idFields.map(f=>
+    '<div class="admin-row"><span>'+f.label+'</span><strong>'+escapeHtml(state.identity[f.key]||"")+'</strong></div>'
+  ).join("");
+  return pageHeader('Tinjau Sebelum Kirim','teal','Konfirmasi Jawaban','Periksa kembali sebelum mengirimkan') +
+  '<div class="card">' +
+    '<div class="admin-row"><span>Nama</span><strong>'+escapeHtml(state.nama)+'</strong></div>' +
+    idRows +
+    '<div class="admin-row"><span>Kategori Responden</span><strong>'+st.label+'</strong></div>' +
+    '<div class="admin-row"><span>Pertanyaan Terjawab</span><strong>'+answered+' / '+state.questions.length+'</strong></div>' +
+    '<button class="btn-primary" onclick="submitSurvey()">Kirim Jawaban</button>' +
+    '<button class="btn-secondary" style="width:100%;margin-top:10px" onclick="setState({view:\'survey\', sectionIndex: state.sections.length-1})">Periksa Kembali Jawaban</button>' +
+  '</div>' + pageEnd();
+}
+
+window.submitSurvey = async function(){
+  const payload = buildPayload();
+  const [cloudOk, sheetOk] = await Promise.all([
+    trySaveToCloud(payload),
+    trySendToSheet(payload)
+  ]);
+  // Local CSV download is kept only as a silent backup copy on the
+  // respondent's own device; it is no longer presented as a required step.
+  try{ downloadSingleCsv(payload); }catch(e){ /* non-critical, ignore */ }
+  setState({view:"done", lastSubmission: payload, storageWorked: cloudOk || sheetOk});
+};
+
+/* ============================ RENDER: DONE ============================ */
+function renderDone(){
+  return pageHeader('Selesai','','Terima Kasih','Jawaban Anda telah berhasil disimpan') +
+  '<div class="card">' +
+    '<p class="lede" style="margin-bottom:6px">Jawaban Bapak/Ibu/Saudara/i sebagai <strong>'+STAKEHOLDERS[state.stKey].label+'</strong> telah berhasil disimpan.</p>' +
+    '<p class="lede" style="margin-bottom:18px">Kami mengucapkan terima kasih yang sebesar-besarnya atas waktu, tenaga, dan pikiran yang telah Bapak/Ibu/Saudara/i luangkan untuk mengisi kuesioner penelitian ini. Partisipasi Anda memberikan kontribusi yang sangat berarti bagi kelancaran dan keberhasilan penelitian ini.</p>' +
+    '<p class="signoff" style="margin-top:0">Hormat kami,<br>' +
+      '<strong>Shintya Amallia Indarwati, S.T.</strong><br>' +
+      'Program Studi Magister Teknik Sipil<br>' +
+      'Institut Teknologi Nasional (ITENAS) Bandung</p>' +
+    '<button class="btn-primary" onclick="resetAll()">Isi Kuesioner untuk Responden Lain</button>' +
+    '<div class="footer-link"><button class="btn-link" onclick="downloadSingleCsv(state.lastSubmission)">Unduh salinan jawaban saya (opsional)</button></div>' +
+  '</div>' + pageEnd();
+}
+
+window.resetAll = function(){
+  setState({view:"welcome", stKey:null, nama:"", identity:{}, questions:[], answers:[], sections:[], sectionIndex:0, lastSubmission:null, storageWorked:null});
+};
+
+/* ============================ RENDER: ADMIN ============================ */
+window.goAdmin = function(){
+  setState({view:"admin"});
+  loadAdminData();
+};
+
+function renderAdmin(){
+  let body;
+  if(state.adminLoading || !state.adminData){
+    body = '<p class="lede">Memuat data responden…</p>';
+  } else {
+    const rows = Object.entries(STAKEHOLDERS).map(([key, st])=>{
+      const d = state.adminData[key];
+      return '<div class="admin-row"><span>'+st.label+'</span>' +
+        '<span style="display:flex;align-items:center;gap:10px">' +
+          '<span class="pill">'+d.count+' responden</span>' +
+          '<button class="btn-link" '+(d.count===0?'disabled':'')+' onclick="downloadCsv(\''+key+'\', state.adminData[\''+key+'\'].items)">Unduh CSV</button>' +
+        '</span></div>';
+    }).join("");
+    body = '<div class="card">'+rows+'</div>';
+  }
+  return pageHeader('Mode Admin','teal','Rekap Responden','Data jawaban per kategori stakeholder') +
+  '<p class="lede">Rekap di bawah hanya menampilkan jawaban yang tersimpan otomatis lewat penyimpanan Claude.ai. Jika kuesioner ini dibagikan sebagai file mandiri (dibuka langsung di browser, bukan lewat Claude.ai), data tidak akan muncul di sini — gunakan file CSV yang otomatis terunduh dari setiap responden, lalu gabungkan barisnya secara manual di Excel (header CSV-nya identik per kategori responden).</p>' +
+  body +
+  '<div class="footer-link"><button class="btn-link" onclick="goBackFromAdmin()">&larr; Kembali ke Halaman Awal</button></div>' +
+  pageEnd();
+}
+window.downloadCsv = downloadCsv;
+window.goBackFromAdmin = function(){ setState({view:"start"}); };
+
+/* ============================ MAIN RENDER ============================ */
+function render(){
+  const app = document.getElementById("app");
+  let html;
+  if(state.view==="welcome") html = renderWelcome();
+  else if(state.view==="start") html = renderStart();
+  else if(state.view==="briefing") html = renderBriefing();
+  else if(state.view==="survey") html = renderSurvey();
+  else if(state.view==="review") html = renderReview();
+  else if(state.view==="done") html = renderDone();
+  else if(state.view==="admin") html = renderAdmin();
+  if(state.toast) html += '<div class="toast">'+state.toast+'</div>';
+  app.innerHTML = html;
+  if(state.view==="start") checkStartEnabled();
+}
+
+render();
+</script>
+</body>
+</html>
