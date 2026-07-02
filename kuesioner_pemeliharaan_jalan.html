@@ -42,14 +42,13 @@
   }
   #app{max-width:1140px;margin:0 auto;padding:0 0 60px;}
 
-  /* ── LAYOUT 2 KOLOM PERTANYAAN ── */
-  .q2col{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:0 20px;
-    align-items:start;
+  /* ── LAYOUT SATU KOLOM PERTANYAAN (desktop & mobile, urutan tetap) ── */
+  .qlist{
+    display:flex;
+    flex-direction:column;
+    max-width:720px;
+    margin:0 auto;
   }
-  .q2col-left,.q2col-right{ display:flex; flex-direction:column; }
   .qnum-badge{
     display:inline-flex;align-items:center;justify-content:center;
     width:22px;height:22px;border-radius:50%;
@@ -60,7 +59,6 @@
   .qnum-check{ color:var(--teal);font-size:13px;font-weight:700;margin-left:4px; }
   .qblock-done{ border-left:3px solid var(--teal);padding-left:10px; }
   @media(max-width:700px){
-    .q2col{ grid-template-columns:1fr; }
     #app{ max-width:100%; }
   }
 
@@ -252,7 +250,6 @@
     border-left:3px solid var(--teal);
   }
   @media (max-width:700px){
-    .q2col{grid-template-columns:1fr;}
     #app{max-width:100%;}
   }
   @media (max-width:480px){
@@ -1313,13 +1310,10 @@ function renderSurvey(){
     '</div>';
   });
 
-  // Pisah ke 2 kolom (kiri=genap, kanan=ganjil) lalu gabung
-  const col1 = allQBlocks.filter((_,i)=>i%2===0);
-  const col2 = allQBlocks.filter((_,i)=>i%2!==0);
+  // Satu kolom, urut sesuai nomor pertanyaan aslinya (tidak diacak)
   const itemsHtml =
-    '<div class="q2col">' +
-      '<div class="q2col-left">'  + col1.join('<div class="qdivider"></div>') + '</div>' +
-      '<div class="q2col-right">' + col2.join('<div class="qdivider"></div>') + '</div>' +
+    '<div class="qlist">' +
+      allQBlocks.join('<div class="qdivider"></div>') +
     '</div>';
 
   return pageHeader('Pertanyaan','teal',sec.section,'Bagian '+(state.sectionIndex+1)+' dari '+totalSections) +
