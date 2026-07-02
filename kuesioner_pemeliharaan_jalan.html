@@ -624,12 +624,21 @@ function valueToMatrix(ans){
   return (1/ans.value).toFixed(6);
 }
 
+// Timestamp lokal WIB (Asia/Jakarta), bukan UTC — supaya jam yang tercatat
+// di spreadsheet sama dengan jam saat responden benar-benar mengisi.
+function nowJakartaString(){
+  const d = new Date();
+  const datePart = d.toLocaleDateString('en-CA', {timeZone:'Asia/Jakarta'}); // YYYY-MM-DD
+  const timePart = d.toLocaleTimeString('en-GB', {timeZone:'Asia/Jakarta', hour12:false}); // HH:mm:ss
+  return datePart + ' ' + timePart + ' WIB';
+}
+
 function buildPayload(){
   const id = "anp_resp:" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
   return {
     id, stakeholder: state.stKey, stakeholderLabel: STAKEHOLDERS[state.stKey].label,
     nama: state.nama, identity: Object.assign({}, state.identity),
-    tanggal: new Date().toISOString(),
+    tanggal: nowJakartaString(),
     answers: state.answers
   };
 }
@@ -1387,9 +1396,12 @@ window.submitSurvey = async function(){
     trySaveToCloud(payload),
     trySendToSheet(payload)
   ]);
-  // Local CSV download is kept only as a silent backup copy on the
-  // respondent's own device; it is no longer presented as a required step.
-  try{ downloadSingleCsv(payload); }catch(e){ /* non-critical, ignore */ }
+  // Tampilkan halaman "Terima Kasih" dulu. Unduh CSV otomatis TIDAK lagi
+  // dijalankan di sini — di sejumlah browser HP (terutama Safari iOS),
+  // trik unduh via blob+anchor ini malah membuka/menavigasi ke isi file
+  // CSV-nya alih-alih benar-benar mengunduh, sehingga halaman "Terima Kasih"
+  // tidak pernah terlihat. Jawaban tetap tersimpan lewat cloud/Google Sheet;
+  // unduhan CSV kini murni opsional lewat tombol di halaman ini.
   setState({view:"done", lastSubmission: payload, storageWorked: cloudOk || sheetOk});
 };
 
