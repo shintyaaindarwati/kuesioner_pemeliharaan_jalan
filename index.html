@@ -547,7 +547,7 @@ const IDENTITY_FIELDS = {
 // jawaban tetap aman tersimpan sebagai cadangan lokal di perangkat responden.
 // ⬇ Ganti dengan URL Web App dari Google Apps Script Anda setelah deploy
 // Google Sheet target: https://docs.google.com/spreadsheets/d/1wo7BX3nHMUwCRGBLhLDW5aKv20r727d-ENJHw0HO2C0/edit
-const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwG9jwNMW3RZeuc409Hc8cyZ3jECi_na3EJ3E2CNXiD8SRQTbQEHRWFdsqOoLuRMbLbBQ/exec";
+const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyBdnHUe7Rtb5I2GY5X9j-5ULee7n21BaFZkGL-zEgrNUi0jDlQHqNhdxSkVESu7C87uQ/exec";
 
 const LETTERS = "ABCDEF";
 
@@ -641,21 +641,6 @@ function buildPayload(){
     tanggal: nowJakartaString(),
     answers: state.answers
   };
-}
-
-// Best-effort cloud save. Only works when this page is opened inside the
-// Claude.ai artifact viewer (window.storage is injected by that runtime).
-// When the file is opened as a plain .html (double-click, local server,
-// shared via email/USB, etc.) this fails silently and we fall back to the
-// CSV-download path below, which always works in any browser.
-async function trySaveToCloud(payload){
-  try{
-    if(!window.storage || typeof window.storage.set !== "function") return false;
-    await window.storage.set(payload.id, JSON.stringify(payload), true);
-    return true;
-  }catch(e){
-    return false;
-  }
 }
 
 // Same matrix value as valueToMatrix(), but returned as a real JS number
@@ -1392,17 +1377,14 @@ function renderReview(){
 
 window.submitSurvey = async function(){
   const payload = buildPayload();
-  const [cloudOk, sheetOk] = await Promise.all([
-    trySaveToCloud(payload),
-    trySendToSheet(payload)
-  ]);
+  const sheetOk = await trySendToSheet(payload);
   // Tampilkan halaman "Terima Kasih" dulu. Unduh CSV otomatis TIDAK lagi
   // dijalankan di sini — di sejumlah browser HP (terutama Safari iOS),
   // trik unduh via blob+anchor ini malah membuka/menavigasi ke isi file
   // CSV-nya alih-alih benar-benar mengunduh, sehingga halaman "Terima Kasih"
-  // tidak pernah terlihat. Jawaban tetap tersimpan lewat cloud/Google Sheet;
+  // tidak pernah terlihat. Jawaban tetap tersimpan lewat Google Sheet;
   // unduhan CSV kini murni opsional lewat tombol di halaman ini.
-  setState({view:"done", lastSubmission: payload, storageWorked: cloudOk || sheetOk});
+  setState({view:"done", lastSubmission: payload, storageWorked: sheetOk});
 };
 
 /* ============================ RENDER: DONE ============================ */
@@ -1474,6 +1456,3 @@ render();
 </script>
 </body>
 </html>
-
-
-
